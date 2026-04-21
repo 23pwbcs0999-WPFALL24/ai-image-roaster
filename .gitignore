@@ -1,0 +1,23 @@
+# ── .gitignore ────────────────────────────────────────────────
+# Protect your API key and keep the repo clean
+
+# Secret keys – NEVER commit this!
+.env
+
+# Python virtual environment folder
+venv/
+env/
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Streamlit cache
+.streamlit/
+
+# OS files
+.DS_Store
+Thumbs.db

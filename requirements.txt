@@ -1,0 +1,7 @@
+# ── AI Vision Roast System – Python dependencies ──────────────
+# Install with:  pip install -r requirements.txt
+
+streamlit>=1.35.0          # Web UI framework
+google-generativeai>=0.7.0 # Google Gemini API client
+Pillow>=10.0.0             # Image loading and manipulation
+python-dotenv>=1.0.0       # Load .env variables safely
