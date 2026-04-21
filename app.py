@@ -181,7 +181,7 @@ html, body, [class*="css"] {
 
 
 # ── 5. Helper: generate roast using Gemini ─────────────────────
-def generate_roast(image: Image.Image, intensity: int, style: str) -> str:
+def generate_roast(image: Image.Image) -> str:
     """
     Sends the PIL image to Gemini and returns a funny roast string.
     Falls back to a placeholder if the API key is missing.
@@ -195,9 +195,22 @@ def generate_roast(image: Image.Image, intensity: int, style: str) -> str:
             "champ. 😄"
         )
 
-    # ── Build an opinionated prompt for sharper, funnier roasts ───────────
-    prompt = f"""
-Analyze every single pixel of this image and roast it using the most oddly specific insults you can think of. Don't just say it looks bad—tell me what series of tragic, mildly embarrassing life events led to this exact photo being taken. Compare the subject to obscure, depressing things (like a forgotten gas station hotdog or the carpet at a bowling alley). Be hyper-analytical, deeply cynical, and unapologetically mean.
+    # ── Build a stronger prompt for funnier, sharper, but safe roasts ──────
+    prompt = """
+You are an elite roast comedian writing for a live crowd.
+
+Analyze this image carefully and produce ONE high-quality roast that feels original.
+
+Requirements:
+- Keep it to exactly 3 lines.
+- Each line should be a punchline, not explanation.
+- Be specific to visible details in the image (pose, background, outfit, objects, vibe, timing).
+- Use one clever analogy and one unexpected comparison.
+- Tone: playful, witty, confident, and memorable.
+- Avoid generic lines like "bro thinks" or "main character energy" unless truly relevant.
+
+
+Return only the roast text.
     """
 
     # ── Use a verified working Gemini Flash model for this API key ──────
@@ -205,9 +218,9 @@ Analyze every single pixel of this image and roast it using the most oddly speci
     response = model.generate_content(
         [prompt, image],
         generation_config={
-            "temperature": 1.15,
-            "top_p": 0.95,
-            "max_output_tokens": 180,
+            "temperature": 1.25,
+            "top_p": 0.92,
+            "max_output_tokens": 220,
         },
     )
 
@@ -270,26 +283,6 @@ if uploaded_file is not None:
     width, height = image.size
     st.caption(f"📐 {width} × {height} px  ·  Mode: {image.mode}")
 
-    # ── Roast controls ─────────────────────────────────────────
-    st.markdown('<div class="section-label" style="margin-top:1rem;">🎚️ Roast Controls</div>', unsafe_allow_html=True)
-
-    control_col1, control_col2 = st.columns(2)
-    with control_col1:
-        roast_intensity = st.slider(
-            "Roast Intensity",
-            min_value=1,
-            max_value=10,
-            value=7,
-            help="1 = gentle tease, 10 = spicy but still safe",
-        )
-
-    with control_col2:
-        roast_style = st.selectbox(
-            "Roast Style",
-            ["Stand-up", "Savage One-liner", "Gen-Z", "Corporate", "Dramatic"],
-            index=1,
-        )
-
     # ── Generate button ────────────────────────────────────────
     st.markdown('<div class="section-label" style="margin-top:1rem;">🎤 Step 3 — Get Roasted</div>', unsafe_allow_html=True)
 
@@ -297,7 +290,7 @@ if uploaded_file is not None:
 
         with st.spinner("🤔 Gemini is judging your image..."):
             try:
-                roast_text = generate_roast(image, roast_intensity, roast_style)
+                roast_text = generate_roast(image)
 
                 # ── Display result ─────────────────────────────
                 st.markdown("---")
