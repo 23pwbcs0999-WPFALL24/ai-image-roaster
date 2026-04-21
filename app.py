@@ -197,26 +197,7 @@ def generate_roast(image: Image.Image, intensity: int, style: str) -> str:
 
     # ── Build an opinionated prompt for sharper, funnier roasts ───────────
     prompt = f"""
-    You are a fast, witty roast comedian with strong observational humor.
-
-    Task:
-    - Analyze the image closely and roast what is ACTUALLY visible.
-    - Focus on specific details (pose, outfit, setup, background, vibe, timing, composition).
-    - Write in a {style.lower()} style.
-    - Roast intensity: {intensity}/10.
-
-    Output format:
-    - Exactly 3 short lines.
-    - Each line should land like a punchline.
-    - No generic filler, no explanations, no hashtags.
-    - Use 0-2 emojis total (not every line).
-
-    Safety rules:
-    - No hate, harassment, sexual content, or slurs.
-    - No attacks on protected traits or body shaming.
-    - Roast choices and vibes, not identity.
-
-    Make it feel like a real roast battle: playful, sharp, memorable.
+Analyze every single pixel of this image and roast it using the most oddly specific insults you can think of. Don't just say it looks bad—tell me what series of tragic, mildly embarrassing life events led to this exact photo being taken. Compare the subject to obscure, depressing things (like a forgotten gas station hotdog or the carpet at a bowling alley). Be hyper-analytical, deeply cynical, and unapologetically mean.
     """
 
     # ── Use a verified working Gemini Flash model for this API key ──────
