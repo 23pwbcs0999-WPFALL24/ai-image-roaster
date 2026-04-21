@@ -181,7 +181,7 @@ html, body, [class*="css"] {
 
 
 # ── 5. Helper: generate roast using Gemini ─────────────────────
-def generate_roast(image: Image.Image) -> str:
+def generate_roast(image: Image.Image, intensity: int, style: str) -> str:
     """
     Sends the PIL image to Gemini and returns a funny roast string.
     Falls back to a placeholder if the API key is missing.
@@ -195,24 +195,40 @@ def generate_roast(image: Image.Image) -> str:
             "champ. 😄"
         )
 
-    # ── Build the Gemini prompt ────────────────────────────────
-    prompt = """
-    Look at this image carefully and write ONE short, clever, and FUNNY roast about it.
+    # ── Build an opinionated prompt for sharper, funnier roasts ───────────
+    prompt = f"""
+    You are a fast, witty roast comedian with strong observational humor.
 
-    Rules you MUST follow:
-    - Be playful, witty, and humorous — like a comedian doing a light roast
-    - Keep it to 2-4 sentences max
-    - Do NOT be hateful, racist, sexist, abusive, sexually explicit, or personally cruel
-    - Roast the situation, objects, style, choices, or vibes — not a person's body or identity
-    - End with a lighthearted emoji or two
-    - If the image shows a person, roast their outfit, pose, expression, or activity — not their appearance
+    Task:
+    - Analyze the image closely and roast what is ACTUALLY visible.
+    - Focus on specific details (pose, outfit, setup, background, vibe, timing, composition).
+    - Write in a {style.lower()} style.
+    - Roast intensity: {intensity}/10.
 
-    Respond with ONLY the roast text. No intro, no explanation.
+    Output format:
+    - Exactly 3 short lines.
+    - Each line should land like a punchline.
+    - No generic filler, no explanations, no hashtags.
+    - Use 0-2 emojis total (not every line).
+
+    Safety rules:
+    - No hate, harassment, sexual content, or slurs.
+    - No attacks on protected traits or body shaming.
+    - Roast choices and vibes, not identity.
+
+    Make it feel like a real roast battle: playful, sharp, memorable.
     """
 
     # ── Use a verified working Gemini Flash model for this API key ──────
     model = genai.GenerativeModel("gemini-2.5-flash")
-    response = model.generate_content([prompt, image])
+    response = model.generate_content(
+        [prompt, image],
+        generation_config={
+            "temperature": 1.15,
+            "top_p": 0.95,
+            "max_output_tokens": 180,
+        },
+    )
 
     return response.text.strip()
 
@@ -273,6 +289,26 @@ if uploaded_file is not None:
     width, height = image.size
     st.caption(f"📐 {width} × {height} px  ·  Mode: {image.mode}")
 
+    # ── Roast controls ─────────────────────────────────────────
+    st.markdown('<div class="section-label" style="margin-top:1rem;">🎚️ Roast Controls</div>', unsafe_allow_html=True)
+
+    control_col1, control_col2 = st.columns(2)
+    with control_col1:
+        roast_intensity = st.slider(
+            "Roast Intensity",
+            min_value=1,
+            max_value=10,
+            value=7,
+            help="1 = gentle tease, 10 = spicy but still safe",
+        )
+
+    with control_col2:
+        roast_style = st.selectbox(
+            "Roast Style",
+            ["Stand-up", "Savage One-liner", "Gen-Z", "Corporate", "Dramatic"],
+            index=1,
+        )
+
     # ── Generate button ────────────────────────────────────────
     st.markdown('<div class="section-label" style="margin-top:1rem;">🎤 Step 3 — Get Roasted</div>', unsafe_allow_html=True)
 
@@ -280,7 +316,7 @@ if uploaded_file is not None:
 
         with st.spinner("🤔 Gemini is judging your image..."):
             try:
-                roast_text = generate_roast(image)
+                roast_text = generate_roast(image, roast_intensity, roast_style)
 
                 # ── Display result ─────────────────────────────
                 st.markdown("---")
